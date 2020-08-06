@@ -6,7 +6,7 @@ This is to use CCS811 with Rust.
 
 
 ```toml
-ccs811 = { path = "./rs_ccs_811", features = ["std"] }
+ccs811 = { git = "https://github.com/mmmpa/rs_ccs811", features = ["std"] }
 ```
 
 ```rust
