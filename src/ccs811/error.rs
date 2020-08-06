@@ -1,4 +1,4 @@
-use crate::{DeviceError, ErrorId, Status};
+use crate::{DeviceError, Status};
 
 #[derive(Debug)]
 pub enum Css811Error {

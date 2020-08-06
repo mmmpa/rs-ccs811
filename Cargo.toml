@@ -1,5 +1,5 @@
 [package]
-name = "ccs_811"
+name = "ccs811"
 version = "0.1.0"
 authors = ["mmmpa <mmmpa.mmmpa@gmail.com>"]
 edition = "2018"

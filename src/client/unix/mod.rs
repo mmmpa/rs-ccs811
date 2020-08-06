@@ -4,10 +4,10 @@ use crate::*;
 use i2c::*;
 use std::fs::File;
 use std::os::unix::io::RawFd;
-use std::os::unix::prelude::*;
 
 pub struct Css811Client {
     // File を drop すると close され fd が無効になるので保持しておく
+    #[allow(dead_code)]
     file: File,
     fd: RawFd,
 }

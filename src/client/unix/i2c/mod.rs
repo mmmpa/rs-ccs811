@@ -12,6 +12,7 @@ mod read_write {
     pub const I2C_SMBUS_WRITE: u8 = 0;
 }
 
+#[allow(dead_code)]
 mod size {
     pub const I2C_SMBUS_QUICK: u32 = 0;
     pub const I2C_SMBUS_BYTE: u32 = 1;
@@ -56,6 +57,7 @@ impl i2c_smbus_data {
 
 // nix の macros は pub で作成してしまうが
 // 外で直接 unsafe は使わせないようにする。
+#[allow(dead_code)]
 mod sealed {
     use crate::client::unix::i2c::i2c_smbus_ioctl_data;
 
@@ -84,6 +86,7 @@ mod sealed {
 
 type I2CResult<T> = Result<T, I2cError>;
 
+#[allow(dead_code)]
 pub fn i2c_slave(fd: RawFd, device_address: I2cAddress) -> I2CResult<()> {
     unsafe { sealed::i2c_slave_access(fd, device_address.0 as i32) }?;
     Ok(())
@@ -121,10 +124,14 @@ pub fn i2c_smbus_write_byte_data(fd: RawFd, register: RegisterAddress, value: u8
 pub fn i2c_smbus_read_i2c_block_data(
     fd: RawFd,
     register: RegisterAddress,
-    length: u8,
-) -> I2CResult<Vec<u8>> {
+    result: &mut [u8],
+) -> I2CResult<()> {
+    if result.len() > 255 {
+        return Err(I2cError::TooLongBlock);
+    }
+
     let mut data = i2c_smbus_data::empty();
-    data.block[0] = length;
+    data.block[0] = result.len() as u8;
 
     let mut message = i2c_smbus_ioctl_data {
         read_write: read_write::I2C_SMBUS_READ,
@@ -136,8 +143,11 @@ pub fn i2c_smbus_read_i2c_block_data(
     unsafe { sealed::i2c_smbus_access(fd, &mut message) }?;
 
     let count = data.block[0];
-    let data = (&data.block[1..(count + 1) as usize]).to_vec();
-    Ok(data)
+    &data.block[1..(count + 1) as usize]
+        .iter()
+        .enumerate()
+        .for_each(|(i, d)| result[i] = *d);
+    Ok(())
 }
 
 pub fn i2c_smbus_write_i2c_block_data(

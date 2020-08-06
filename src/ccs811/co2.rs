@@ -1,7 +1,7 @@
 use core::ops::Add;
 
 #[derive(Debug, Copy, Clone)]
-pub struct Co2(pub f32);
+pub struct Co2(f32);
 
 impl Add for Co2 {
     type Output = Co2;
@@ -12,8 +12,12 @@ impl Add for Co2 {
 }
 
 impl Co2 {
+    pub fn new(n: f32) -> Self {
+        Self(n)
+    }
+
     pub fn div(&self, n: f32) -> Self {
-        Co2(self.0 / n)
+        Self::new(self.0 / n)
     }
 }
 
