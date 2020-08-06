@@ -39,7 +39,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
             Ok(raw) => {
                 match raw.status() {
                     Err(e) => {
-                        log_error(e, &dev).await;
+                         error!("{:?}", e);
                         continue;
                     }
                     Ok(s) => {
