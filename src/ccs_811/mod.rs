@@ -1,6 +1,5 @@
 mod co2;
 mod error;
-mod i2c;
 mod tvoc;
 
 pub use co2::*;
@@ -10,75 +9,68 @@ pub use tvoc::*;
 
 use crate::*;
 
-use nix;
-use std::fs::File;
-use std::os::unix::io::RawFd;
-use std::os::unix::prelude::*;
-
 /// CSS811 specification: https://cdn-learn.adafruit.com/assets/assets/000/044/636/original/CCS811_DS000459_2-00-1098798.pdf
-
-pub const STATUS: I2cRegister = I2cRegister(0x00); // byte: 1  mode: R
-pub const MEAS_MODE: I2cRegister = I2cRegister(0x01); // byte: 1 mode: R/W
-pub const ALG_RESULT_DATA: I2cRegister = I2cRegister(0x02); // byte: 8 mode: R
-pub const RAW_DATA: I2cRegister = I2cRegister(0x03); // byte: 2 mode: R
-pub const ENV_DATA: I2cRegister = I2cRegister(0x05); // byte: 4 mode: W
-pub const NTC: I2cRegister = I2cRegister(0x06); // byte: 4 mode: R
-pub const THRESHOLDS: I2cRegister = I2cRegister(0x10); // byte: 5 mode: W
-pub const BASELINE: I2cRegister = I2cRegister(0x11); // byte: 2 mode: R/W
-pub const HW_ID: I2cRegister = I2cRegister(0x20); // byte: 1 mode: R
-pub const HW_VERSION: I2cRegister = I2cRegister(0x21); // byte: 1 mode: R
-pub const FW_BOOT_VERSION: I2cRegister = I2cRegister(0x23); // byte: 2 mode: R
-pub const FW_APP_VERSION: I2cRegister = I2cRegister(0x24); // byte: 2 mode: R
-pub const ERROR_ID: I2cRegister = I2cRegister(0xE0); // byte: 1 mode: R
-pub const APP_START: I2cRegister = I2cRegister(0xF4); // byte: 0 mode: W
-pub const SW_RESET: I2cRegister = I2cRegister(0xFF); // byte: 0 mode: W
 
 pub const ERROR: u8 = 0b0000_0001;
 pub const DATA_READY: u8 = 0b0000_1000;
 pub const APP_VALID: u8 = 0b0001_0000;
 pub const FW_MODE: u8 = 0b1000_0000;
 
-pub struct Css811 {
-    // File を drop すると close され fd が無効になるので保持しておく
-    file: File,
-    fd: RawFd,
+#[repr(u8)]
+pub enum RegisterAddress {
+    Status = 0x00,
+    MeasMode = 0x01,
+    AlgResultData = 0x02,
+    RawData = 0x03,
+    EnvData = 0x05,
+    Ntc = 0x06,
+    Thresholds = 0x10,
+    Baseline = 0x11,
+    HwId = 0x20,
+    HwVersion = 0x21,
+    FwBootVersion = 0x23,
+    FwAppVersion = 0x24,
+    ErrorId = 0xE0,
+    AppStart = 0xF4,
+    SwReset = 0xFF,
 }
 
-impl Css811 {
-    pub fn new(bus: I2cBus, address: I2cAddress) -> Css811Result<Self> {
-        let path = format!("/dev/i2c-{}", bus.0);
-        let file = std::fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(path)
-            .unwrap();
-        let fd = file.as_raw_fd();
+pub trait I2C {
+    fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Css811Result<()>;
+    fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Css811Result<()>;
+    fn read_byte_data(&self, reg: RegisterAddress) -> Css811Result<u8>;
+    fn read_i2c_block_data(&self, reg: RegisterAddress, data: &mut [u8]) -> Css811Result<()>;
+}
 
-        i2c_slave(fd, address)?;
+pub trait Ccs811 {
+    type I2C: I2C;
 
-        Ok(Self { fd, file })
-    }
+    fn i2c(&self) -> &Self::I2C;
 
-    pub fn start(&self) -> Css811Result<()> {
-        i2c_smbus_write_i2c_block_data(self.fd, APP_START, &vec![])?;
-        i2c_smbus_write_byte_data(self.fd, MEAS_MODE, 0b11100)?;
+    fn start(&self) -> Css811Result<()> {
+        self.i2c()
+            .write_i2c_block_data(RegisterAddress::AppStart, &vec![])?;
+        self.i2c()
+            .write_byte_data(RegisterAddress::MeasMode, 0b11100)?;
         Ok(())
     }
 
-    pub fn status(&self) -> Css811Result<Status> {
-        let result = i2c_smbus_read_byte_data(self.fd, STATUS)?;
+    fn status(&self) -> Css811Result<Status> {
+        let result = self.i2c().read_byte_data(RegisterAddress::Status)?;
         Status::new(result)
     }
 
-    pub fn result(&self) -> Css811Result<AlgorithmResultsData> {
-        let results = i2c_smbus_read_i2c_block_data(self.fd, ALG_RESULT_DATA, 6)?;
+    fn result(&self) -> Css811Result<AlgorithmResultsData> {
+        let mut results = [0; 6];
+        self.i2c()
+            .read_i2c_block_data(RegisterAddress::AlgResultData, &mut results)?;
         Ok(AlgorithmResultsData([
             results[0], results[1], results[2], results[3], results[4], results[5],
         ]))
     }
 
-    pub fn error_id(&self) -> Css811Result<ErrorId> {
-        let result = i2c_smbus_read_byte_data(self.fd, ERROR_ID)?;
+    fn error_id(&self) -> Css811Result<ErrorId> {
+        let result = self.i2c().read_byte_data(RegisterAddress::ErrorId)?;
         let error_id = ErrorId::new(result);
         Ok(error_id)
     }

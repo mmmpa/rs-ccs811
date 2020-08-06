@@ -2,6 +2,7 @@ mod error;
 
 pub use error::*;
 
+use crate::RegisterAddress;
 use std::os::unix::io::RawFd;
 
 /// read: ic2.h and ic2-dev.h
@@ -28,9 +29,6 @@ pub struct I2cBus(pub u8);
 
 #[derive(Copy, Clone)]
 pub struct I2cAddress(pub u8);
-
-#[derive(Copy, Clone)]
-pub struct I2cRegister(pub u8);
 
 #[allow(non_camel_case_types)]
 #[derive(Debug)]
@@ -59,7 +57,7 @@ impl i2c_smbus_data {
 // nix の macros は pub で作成してしまうが
 // 外で直接 unsafe は使わせないようにする。
 mod sealed {
-    use crate::i2c_smbus_ioctl_data;
+    use crate::client::unix::i2c::i2c_smbus_ioctl_data;
 
     /// read: ic2.h and ic2-dev.h
 
@@ -91,11 +89,11 @@ pub fn i2c_slave(fd: RawFd, device_address: I2cAddress) -> I2CResult<()> {
     Ok(())
 }
 
-pub fn i2c_smbus_read_byte_data(fd: RawFd, register: I2cRegister) -> I2CResult<u8> {
+pub fn i2c_smbus_read_byte_data(fd: RawFd, register: RegisterAddress) -> I2CResult<u8> {
     let mut data = i2c_smbus_data::empty();
     let mut message = i2c_smbus_ioctl_data {
         read_write: read_write::I2C_SMBUS_READ,
-        command: register.0,
+        command: register as u8,
         size: size::I2C_SMBUS_BYTE_DATA,
         data: &mut data,
     };
@@ -105,12 +103,12 @@ pub fn i2c_smbus_read_byte_data(fd: RawFd, register: I2cRegister) -> I2CResult<u
     Ok(data.block[0])
 }
 
-pub fn i2c_smbus_write_byte_data(fd: RawFd, register: I2cRegister, value: u8) -> I2CResult<u8> {
+pub fn i2c_smbus_write_byte_data(fd: RawFd, register: RegisterAddress, value: u8) -> I2CResult<u8> {
     let mut data = i2c_smbus_data::empty();
     data.block[0] = value;
     let mut message = i2c_smbus_ioctl_data {
         read_write: read_write::I2C_SMBUS_WRITE,
-        command: register.0,
+        command: register as u8,
         size: size::I2C_SMBUS_BYTE_DATA,
         data: &mut data,
     };
@@ -122,7 +120,7 @@ pub fn i2c_smbus_write_byte_data(fd: RawFd, register: I2cRegister, value: u8) ->
 
 pub fn i2c_smbus_read_i2c_block_data(
     fd: RawFd,
-    register: I2cRegister,
+    register: RegisterAddress,
     length: u8,
 ) -> I2CResult<Vec<u8>> {
     let mut data = i2c_smbus_data::empty();
@@ -130,7 +128,7 @@ pub fn i2c_smbus_read_i2c_block_data(
 
     let mut message = i2c_smbus_ioctl_data {
         read_write: read_write::I2C_SMBUS_READ,
-        command: register.0,
+        command: register as u8,
         size: size::I2C_SMBUS_I2C_BLOCK_DATA,
         data: &mut data,
     };
@@ -144,7 +142,7 @@ pub fn i2c_smbus_read_i2c_block_data(
 
 pub fn i2c_smbus_write_i2c_block_data(
     fd: RawFd,
-    register: I2cRegister,
+    register: RegisterAddress,
     values: &[u8],
 ) -> I2CResult<()> {
     let mut data = i2c_smbus_data::empty();
@@ -156,7 +154,7 @@ pub fn i2c_smbus_write_i2c_block_data(
 
     let mut message = i2c_smbus_ioctl_data {
         read_write: read_write::I2C_SMBUS_WRITE,
-        command: register.0,
+        command: register as u8,
         size: size::I2C_SMBUS_I2C_BLOCK_BROKEN,
         data: &mut data,
     };
