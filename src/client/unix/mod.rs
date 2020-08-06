@@ -1,4 +1,4 @@
-mod i2c;
+pub mod i2c;
 
 use crate::*;
 use i2c::*;
@@ -15,11 +15,18 @@ pub struct Ccs811Client {
 }
 
 impl Ccs811Client {
-    pub fn new(file: File) -> Self {
-        Self {
-            fd: file.as_raw_fd(),
-            file,
-        }
+    pub fn new(bus: I2cBus, address: I2cAddress) -> Css811Result<Self> {
+        let path = format!("/dev/i2c-{}", bus.0);
+        let file = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(path)
+            .unwrap();
+        let fd = file.as_raw_fd();
+
+        i2c_slave(fd, address)?;
+
+        Ok(Self { fd, file })
     }
 }
 

@@ -19,10 +19,14 @@ impl Tvoc {
     pub fn div(&self, n: f32) -> Self {
         Tvoc(self.0 / n)
     }
+
+    pub fn is_valid(&self) -> bool {
+        0.0 <= self.0 && self.0 <= 1187.0
+    }
 }
 
-impl ToString for Tvoc {
-    fn to_string(&self) -> String {
-        self.0.to_string()
+impl AsRef<f32> for Tvoc {
+    fn as_ref(&self) -> &f32 {
+        &self.0
     }
 }

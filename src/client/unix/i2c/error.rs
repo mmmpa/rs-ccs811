@@ -1,4 +1,4 @@
-use crate::Css811Error;
+use crate::Ccs811Error;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum I2cError {
@@ -20,7 +20,7 @@ impl From<nix::Error> for I2cError {
     }
 }
 
-impl From<I2cError> for Css811Error {
+impl From<I2cError> for Ccs811Error {
     fn from(e: I2cError) -> Self {
         Self::I2cError(e.to_string())
     }

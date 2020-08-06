@@ -35,6 +35,27 @@ pub enum RegisterAddress {
     SwReset = 0xFF,
 }
 
+#[repr(u8)]
+pub enum MeasureDriveMode {
+    Idle = 0b0000_0000,
+    EverySecond = 0b0001_0000,
+    EveryTenSeconds = 0b0010_0000,
+    EveryMinute = 0b0011_0000,
+    Raw = 0b0100_1000, // no algorithm results data
+}
+
+#[repr(u8)]
+pub enum MeasureInterrupt {
+    Enable = 0b0000_1000,
+    Disable = 0b0000_0000,
+}
+
+#[repr(u8)]
+pub enum MeasureThresh {
+    Enable = 0b0000_0100,
+    Disable = 0b0000_0000,
+}
+
 pub trait I2c {
     fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Css811Result<()>;
     fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Css811Result<()>;
@@ -47,11 +68,18 @@ pub trait Ccs811 {
 
     fn i2c(&self) -> &Self::I2c;
 
-    fn start(&self) -> Css811Result<()> {
+    fn start(
+        &self,
+        mode: MeasureDriveMode,
+        interrupt: MeasureInterrupt,
+        thresh: MeasureThresh,
+    ) -> Css811Result<()> {
         self.i2c()
-            .write_i2c_block_data(RegisterAddress::AppStart, &vec![])?;
-        self.i2c()
-            .write_byte_data(RegisterAddress::MeasMode, 0b11100)?;
+            .write_i2c_block_data(RegisterAddress::AppStart, &[])?;
+        self.i2c().write_byte_data(
+            RegisterAddress::MeasMode,
+            mode as u8 | interrupt as u8 | thresh as u8,
+        )?;
         Ok(())
     }
 

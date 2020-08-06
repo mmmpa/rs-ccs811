@@ -1,41 +1,39 @@
-const MESSAGE: u8 = 0b0000_0001;
-const READ_REGISTER: u8 = 0b0000_0010;
-const MEASURE_MODE: u8 = 0b0000_0100;
-const MAX_RESISTANCE: u8 = 0b0000_1000;
-const HEATER_FAULT: u8 = 0b0001_0000;
-const HEATER_SUPPLY: u8 = 0b0010_0000;
-
+#[repr(u8)]
 #[derive(Copy, Clone, Debug)]
 pub enum DeviceError {
-    Message,
-    ReadRegister,
-    MeasureMode,
-    MaxResistance,
-    HeaterFault,
-    HeaterSupply,
+    Message = 0b0000_0001,
+    ReadRegister = 0b0000_0010,
+    MeasureMode = 0b0000_0100,
+    MaxResistance = 0b0000_1000,
+    HeaterFault = 0b0001_0000,
+    HeaterSupply = 0b0010_0000,
 }
 
-pub struct ErrorId(u8, Vec<DeviceError>);
+pub struct ErrorId(u8, [Option<DeviceError>; 6]);
+
+fn to_devise_error(raw: u8, error: DeviceError) -> Option<DeviceError> {
+    if raw & error as u8 != 0 {
+        Some(error)
+    } else {
+        None
+    }
+}
 
 impl ErrorId {
     pub fn new(raw: u8) -> Self {
         let errors = [
-            (MESSAGE, DeviceError::Message),
-            (READ_REGISTER, DeviceError::ReadRegister),
-            (MEASURE_MODE, DeviceError::MeasureMode),
-            (MAX_RESISTANCE, DeviceError::MaxResistance),
-            (HEATER_FAULT, DeviceError::HeaterFault),
-            (HEATER_SUPPLY, DeviceError::HeaterSupply),
-        ]
-        .iter()
-        .filter(|(f, _)| raw & f != 0)
-        .map(|(_, e)| *e)
-        .collect();
+            to_devise_error(raw, DeviceError::Message),
+            to_devise_error(raw, DeviceError::ReadRegister),
+            to_devise_error(raw, DeviceError::MeasureMode),
+            to_devise_error(raw, DeviceError::MaxResistance),
+            to_devise_error(raw, DeviceError::HeaterFault),
+            to_devise_error(raw, DeviceError::HeaterSupply),
+        ];
 
         Self(raw, errors)
     }
 
-    pub fn errors(&self) -> &[DeviceError] {
+    pub fn errors(&self) -> &[Option<DeviceError>] {
         &self.1
     }
 

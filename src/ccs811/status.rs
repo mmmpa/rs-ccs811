@@ -13,7 +13,7 @@ impl Status {
         let status = Self(raw);
 
         if status.is_error() {
-            Err(Css811Error::ErrorStatus(status))
+            Err(Ccs811Error::ErrorStatus(status))
         } else {
             Ok(status)
         }

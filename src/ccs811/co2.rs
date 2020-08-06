@@ -19,10 +19,14 @@ impl Co2 {
     pub fn div(&self, n: f32) -> Self {
         Self::new(self.0 / n)
     }
+
+    pub fn is_valid(&self) -> bool {
+        400.0 <= self.0 && self.0 <= 8192.0
+    }
 }
 
-impl ToString for Co2 {
-    fn to_string(&self) -> String {
-        self.0.to_string()
+impl AsRef<f32> for Co2 {
+    fn as_ref(&self) -> &f32 {
+        &self.0
     }
 }

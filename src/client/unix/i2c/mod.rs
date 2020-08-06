@@ -86,7 +86,6 @@ mod sealed {
 
 type I2CResult<T> = Result<T, I2cError>;
 
-#[allow(dead_code)]
 pub fn i2c_slave(fd: RawFd, device_address: I2cAddress) -> I2CResult<()> {
     unsafe { sealed::i2c_slave_access(fd, device_address.0 as i32) }?;
     Ok(())
