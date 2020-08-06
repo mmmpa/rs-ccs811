@@ -14,7 +14,7 @@ pub use tvoc::*;
 
 use crate::*;
 
-/// CSS811 specification: https://cdn-learn.adafruit.com/assets/assets/000/044/636/original/CCS811_DS000459_2-00-1098798.pdf
+/// CCS811 specification: https://cdn-learn.adafruit.com/assets/assets/000/044/636/original/CCS811_DS000459_2-00-1098798.pdf
 
 #[repr(u8)]
 pub enum RegisterAddress {
@@ -35,7 +35,7 @@ pub enum RegisterAddress {
     SwReset = 0xFF,
 }
 
-pub trait I2C {
+pub trait I2c {
     fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Css811Result<()>;
     fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Css811Result<()>;
     fn read_byte_data(&self, reg: RegisterAddress) -> Css811Result<u8>;
@@ -43,9 +43,9 @@ pub trait I2C {
 }
 
 pub trait Ccs811 {
-    type I2C: I2C;
+    type I2c: I2c;
 
-    fn i2c(&self) -> &Self::I2C;
+    fn i2c(&self) -> &Self::I2c;
 
     fn start(&self) -> Css811Result<()> {
         self.i2c()
