@@ -8,7 +8,7 @@ impl AlgorithmResultsData {
         Self(data)
     }
 
-    pub fn status(&self) -> Css811Result<Status> {
+    pub fn status(&self) -> Ccs811Result<Status> {
         Status::new(self.0[4])
     }
 

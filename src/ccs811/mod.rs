@@ -57,10 +57,10 @@ pub enum MeasureThresh {
 }
 
 pub trait I2c {
-    fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Css811Result<()>;
-    fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Css811Result<()>;
-    fn read_byte_data(&self, reg: RegisterAddress) -> Css811Result<u8>;
-    fn read_i2c_block_data(&self, reg: RegisterAddress, data: &mut [u8]) -> Css811Result<()>;
+    fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Ccs811Result<()>;
+    fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Ccs811Result<()>;
+    fn read_byte_data(&self, reg: RegisterAddress) -> Ccs811Result<u8>;
+    fn read_i2c_block_data(&self, reg: RegisterAddress, data: &mut [u8]) -> Ccs811Result<()>;
 }
 
 pub trait Ccs811 {
@@ -73,7 +73,7 @@ pub trait Ccs811 {
         mode: MeasureDriveMode,
         interrupt: MeasureInterrupt,
         thresh: MeasureThresh,
-    ) -> Css811Result<()> {
+    ) -> Ccs811Result<()> {
         self.i2c()
             .write_i2c_block_data(RegisterAddress::AppStart, &[])?;
         self.i2c().write_byte_data(
@@ -83,12 +83,12 @@ pub trait Ccs811 {
         Ok(())
     }
 
-    fn status(&self) -> Css811Result<Status> {
+    fn status(&self) -> Ccs811Result<Status> {
         let result = self.i2c().read_byte_data(RegisterAddress::Status)?;
         Status::new(result)
     }
 
-    fn result(&self) -> Css811Result<AlgorithmResultsData> {
+    fn result(&self) -> Ccs811Result<AlgorithmResultsData> {
         let mut results = [0; 6];
         self.i2c()
             .read_i2c_block_data(RegisterAddress::AlgResultData, &mut results)?;
@@ -97,7 +97,7 @@ pub trait Ccs811 {
         ]))
     }
 
-    fn error_id(&self) -> Css811Result<ErrorId> {
+    fn error_id(&self) -> Ccs811Result<ErrorId> {
         let result = self.i2c().read_byte_data(RegisterAddress::ErrorId)?;
         let error_id = ErrorId::new(result);
         Ok(error_id)

@@ -15,7 +15,7 @@ pub struct Ccs811Client {
 }
 
 impl Ccs811Client {
-    pub fn new(bus: I2cBus, address: I2cAddress) -> Css811Result<Self> {
+    pub fn new(bus: I2cBus, address: I2cAddress) -> Ccs811Result<Self> {
         let path = format!("/dev/i2c-{}", bus.0);
         let file = std::fs::OpenOptions::new()
             .read(true)
@@ -31,22 +31,22 @@ impl Ccs811Client {
 }
 
 impl I2c for Ccs811Client {
-    fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Css811Result<()> {
+    fn write_i2c_block_data(&self, reg: RegisterAddress, data: &[u8]) -> Ccs811Result<()> {
         i2c_smbus_write_i2c_block_data(self.fd, reg, data)?;
         Ok(())
     }
 
-    fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Css811Result<()> {
+    fn write_byte_data(&self, reg: RegisterAddress, data: u8) -> Ccs811Result<()> {
         i2c_smbus_write_byte_data(self.fd, reg, data)?;
         Ok(())
     }
 
-    fn read_byte_data(&self, reg: RegisterAddress) -> Css811Result<u8> {
+    fn read_byte_data(&self, reg: RegisterAddress) -> Ccs811Result<u8> {
         let re = i2c_smbus_read_byte_data(self.fd, reg)?;
         Ok(re)
     }
 
-    fn read_i2c_block_data(&self, reg: RegisterAddress, data: &mut [u8]) -> Css811Result<()> {
+    fn read_i2c_block_data(&self, reg: RegisterAddress, data: &mut [u8]) -> Ccs811Result<()> {
         i2c_smbus_read_i2c_block_data(self.fd, reg, data)?;
         Ok(())
     }

@@ -14,4 +14,4 @@ mod client;
 pub use crate::ccs811::*;
 pub use client::*;
 
-pub type Css811Result<T> = Result<T, Ccs811Error>;
+pub type Ccs811Result<T> = Result<T, Ccs811Error>;
