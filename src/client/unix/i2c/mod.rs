@@ -142,6 +142,7 @@ pub fn i2c_smbus_read_i2c_block_data(
     unsafe { sealed::i2c_smbus_access(fd, &mut message) }?;
 
     let count = data.block[0];
+
     &data.block[1..(count + 1) as usize]
         .iter()
         .enumerate()
