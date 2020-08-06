@@ -1,6 +1,13 @@
 # ccs811
 
-This is to use CCS811 with Rust. [SparkFun Air Quality Breakout \- CCS811 \- SEN\-14193 \- SparkFun Electronics](https://www.sparkfun.com/products/14193)
+This is to use CCS811 with Rust.
+
+[SparkFun Air Quality Breakout \- CCS811 \- SEN\-14193 \- SparkFun Electronics](https://www.sparkfun.com/products/14193)
+
+
+```toml
+ccs811 = { path = "./rs_ccs_811", features = ["std"] }
+```
 
 ```rust
 use ccs811::unix::i2c::{I2cAddress, I2cBus};
