@@ -4,6 +4,10 @@ This is to use CCS811 with Rust.
 
 [SparkFun Air Quality Breakout \- CCS811 \- SEN\-14193 \- SparkFun Electronics](https://www.sparkfun.com/products/14193)
 
+```sh
+export I2C_DEVICE_NUMBER="1"
+export I2C_DEVICE_ADDRESS="0x5b"
+```
 
 ```toml
 ccs811 = { git = "https://github.com/mmmpa/rs_ccs811", features = ["std"] }
