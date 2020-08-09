@@ -1,9 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "std")]
-#[macro_use]
-extern crate nix;
-
 #[allow(unused_imports)]
 #[macro_use]
 extern crate log;
