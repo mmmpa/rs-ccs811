@@ -6,7 +6,7 @@ This is to use CCS811 with Rust.
 
 ```sh
 export I2C_DEVICE_NUMBER="1"
-export I2C_DEVICE_ADDRESS="0x5b"
+export CCS811_I2C_DEVICE_ADDRESS="0x5b"
 ```
 
 ```toml
@@ -14,21 +14,21 @@ ccs811 = { git = "https://github.com/mmmpa/rs_ccs811", features = ["std"] }
 ```
 
 ```rust
-use ccs811::unix::i2c::{I2cAddress, I2cBus};
 use ccs811::unix::Ccs811Client;
 use ccs811::{Ccs811, MeasureDriveMode, MeasureInterrupt, MeasureThresh};
 
-fn bus_number() -> I2cBus {
-    I2cBus(env!("I2C_DEVICE_NUMBER").parse().unwrap())
-}
-
-fn device_address() -> I2cAddress {
-    let no_prefix = env!("I2C_DEVICE_ADDRESS").trim_start_matches("0x");
-    I2cAddress(u8::from_str_radix(no_prefix, 16).unwrap())
+fn ccs811_device_address() -> u16 {
+    let no_prefix = env!("CCS811_I2C_DEVICE_ADDRESS").trim_start_matches("0x");
+    u16::from_str_radix(no_prefix, 16).unwrap()
 }
 
 async fn serve() -> Result<(), Box<dyn std::error::Error>> {
-    let dev = Ccs811Client::new(bus_number(), device_address())?;
+    let i2c_cli = LinuxI2CDevice::new(
+        format!("/dev/i2c-{}", env!("I2C_DEVICE_NUMBER")),
+        ccs811_device_address(),
+    )
+    .unwrap();
+    let mut dev = Ccs811Client::new(i2c_cli);
 
     dev.start(
         MeasureDriveMode::EverySecond,
