@@ -13,3 +13,4 @@ i2cdev = { version = "0.4.4", optional = true }
 
 [features]
 std = ["i2cdev"]
+embedded = []

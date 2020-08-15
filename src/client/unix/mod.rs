@@ -13,8 +13,8 @@ impl Ccs811Client {
 }
 
 impl I2c for Ccs811Client {
-    fn write_i2c_block_data(&mut self, reg: RegisterAddress, data: &[u8]) -> Ccs811Result<()> {
-        self.i2c_cli.smbus_write_block_data(reg as u8, data)?;
+    fn write_i2c_blank_data(&mut self, reg: RegisterAddress) -> Ccs811Result<()> {
+        self.i2c_cli.smbus_write_block_data(reg as u8, &[])?;
         Ok(())
     }
 

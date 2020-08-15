@@ -5,7 +5,10 @@ pub enum Ccs811Error {
     DeviseError([Option<DeviceError>; 6]),
     #[cfg(feature = "std")]
     I2cError(String),
+    #[cfg(feature = "embedded")]
+    I2cError(&'static str),
     ErrorStatus(Status),
+    SomethingGoesWrong,
 }
 
 #[cfg(feature = "std")]

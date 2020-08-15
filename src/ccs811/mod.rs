@@ -57,7 +57,7 @@ pub enum MeasureThresh {
 }
 
 pub trait I2c {
-    fn write_i2c_block_data(&mut self, reg: RegisterAddress, data: &[u8]) -> Ccs811Result<()>;
+    fn write_i2c_blank_data(&mut self, reg: RegisterAddress) -> Ccs811Result<()>;
     fn write_byte_data(&mut self, reg: RegisterAddress, data: u8) -> Ccs811Result<()>;
     fn read_byte_data(&mut self, reg: RegisterAddress) -> Ccs811Result<u8>;
     fn read_i2c_block_data(&mut self, reg: RegisterAddress, data: &mut [u8]) -> Ccs811Result<()>;
@@ -74,8 +74,7 @@ pub trait Ccs811 {
         interrupt: MeasureInterrupt,
         thresh: MeasureThresh,
     ) -> Ccs811Result<()> {
-        self.i2c()
-            .write_i2c_block_data(RegisterAddress::AppStart, &[])?;
+        self.i2c().write_i2c_blank_data(RegisterAddress::AppStart)?;
         self.i2c().write_byte_data(
             RegisterAddress::MeasMode,
             mode as u8 | interrupt as u8 | thresh as u8,
