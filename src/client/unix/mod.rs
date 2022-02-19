@@ -1,6 +1,7 @@
 use crate::*;
 use i2cdev::core::I2CDevice;
 use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
+use std::path::Path;
 
 pub struct Ccs811Client {
     i2c_cli: LinuxI2CDevice,
@@ -10,11 +11,19 @@ impl Ccs811Client {
     pub fn new(i2c_cli: LinuxI2CDevice) -> Self {
         Self { i2c_cli }
     }
+
+    pub fn new_with_path_and_address_hex<P: AsRef<Path>>(path: P, address_hex: &str) -> Self {
+        let address = u16::from_str_radix(&address_hex[2..], 16).unwrap();
+        debug!("address: {}", address);
+
+        let i2c_cli = LinuxI2CDevice::new(path, address).unwrap();
+        Ccs811Client::new(i2c_cli)
+    }
 }
 
 impl I2c for Ccs811Client {
-    fn write_i2c_blank_data(&mut self, reg: RegisterAddress) -> Ccs811Result<()> {
-        self.i2c_cli.smbus_write_block_data(reg as u8, &[])?;
+    fn write_i2c_block_data(&mut self, reg: RegisterAddress, data: &[u8]) -> Ccs811Result<()> {
+        self.i2c_cli.smbus_write_i2c_block_data(reg as u8, data)?;
         Ok(())
     }
 
