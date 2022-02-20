@@ -12,12 +12,15 @@ impl Ccs811Client {
         Self { i2c_cli }
     }
 
-    pub fn new_with_path_and_address_hex<P: AsRef<Path>>(path: P, address_hex: &str) -> Self {
+    pub fn new_with_path_and_address_hex<P: AsRef<Path>>(
+        path: P,
+        address_hex: &str,
+    ) -> Ccs811Result<Self> {
         let address = u16::from_str_radix(&address_hex[2..], 16).unwrap();
         debug!("address: {}", address);
 
-        let i2c_cli = LinuxI2CDevice::new(path, address).unwrap();
-        Ccs811Client::new(i2c_cli)
+        let i2c_cli = LinuxI2CDevice::new(path, address)?;
+        Ok(Ccs811Client::new(i2c_cli))
     }
 }
 
