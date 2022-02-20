@@ -19,7 +19,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let mut dev = Ccs811Client::new_with_path_and_address_hex(
         env!("I2C_DEVICE_PATH"),
         env!("I2C_DEVICE_ADDRESS"),
-    );
+    )?;
 
     dev.start(
         MeasureDriveMode::EverySecond,
