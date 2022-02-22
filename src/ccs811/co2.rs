@@ -34,6 +34,6 @@ impl AsRef<f32> for Co2 {
 #[cfg(feature = "std")]
 impl std::fmt::Display for Co2 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{:?}", self.0)
     }
 }

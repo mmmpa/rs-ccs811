@@ -48,7 +48,7 @@ checksum = "f9a06fb2e53271d7c279ec1efea6ab691c35a2ae67ec0d91d7acec0caf13b518"
 
 [[package]]
 name = "ccs811"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "i2cdev",
  "log",
