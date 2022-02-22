@@ -23,8 +23,8 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     dev.start(
         MeasureDriveMode::EverySecond,
-        MeasureInterrupt::Enable,
-        MeasureThresh::Enable,
+        MeasureInterrupt::Disable,
+        MeasureThresh::Disable,
     )?;
 
     loop {
