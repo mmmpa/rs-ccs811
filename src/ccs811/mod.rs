@@ -86,7 +86,7 @@ pub trait Ccs811 {
     fn status(&mut self) -> Ccs811Result<Status> {
         let result = self.i2c().read_byte_data(RegisterAddress::Status)?;
 
-        Status::new(result)
+        Status::try_new(result)
     }
 
     fn result(&mut self) -> Ccs811Result<AlgorithmResultsData> {

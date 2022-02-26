@@ -5,8 +5,10 @@ extern crate log;
 
 mod ccs811;
 mod client;
+mod helpers;
 
-pub use crate::ccs811::*;
+pub use ccs811::*;
 pub use client::*;
+pub use helpers::*;
 
 pub type Ccs811Result<T> = Result<T, Ccs811Error>;
