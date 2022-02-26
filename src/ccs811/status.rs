@@ -9,7 +9,7 @@ const FW_MODE: u8 = 0b1000_0000;
 pub struct Status(pub(crate) u8);
 
 impl Status {
-    pub fn new(raw: u8) -> Ccs811Result<Status> {
+    pub fn try_new(raw: u8) -> Ccs811Result<Status> {
         let status = Self(raw);
 
         if status.is_error() {
@@ -33,5 +33,9 @@ impl Status {
 
     pub fn is_app_mode(&self) -> bool {
         (self.0 & FW_MODE) != 0
+    }
+
+    pub fn raw(&self) -> u8 {
+        self.0
     }
 }

@@ -24,5 +24,5 @@ linker = "arm-linux-gnueabi-gcc"
 ## build
 
 ```shell
-cargo build --example printer --target arm-unknown-linux-gnueabi --release --features std
+cargo build --example printer --target arm-unknown-linux-gnueabi --release --features "std,with_tokio"
 ```

@@ -9,7 +9,7 @@ impl AlgorithmResultsData {
     }
 
     pub fn status(&self) -> Ccs811Result<Status> {
-        Status::new(self.0[4])
+        Status::try_new(self.0[4])
     }
 
     pub fn co2(&self) -> Co2 {
